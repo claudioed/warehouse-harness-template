@@ -59,6 +59,18 @@ echo "    SERVICE_REPO       = ${SERVICE_REPO}  (from current directory name)"
 echo "    RICHEST_AGGREGATE  = ${RICHEST_AGGREGATE}"
 echo
 
+# ci.yml ships as ci.yml.template (NOT .yml) in this template repo so
+# GitHub Actions never tries to execute it here -- a template with no real
+# service code would fail almost every job (no Dockerfile, no
+# apis/openapi.yaml, no charts, no web/), which is a meaningless CI signal
+# for a template rather than the actual thing worth verifying (that
+# instantiation + the fitness tests work, which scripts/new-service.sh and
+# `go test ./internal/architecture/... -v` already prove). Activate it now.
+if [[ -f .github/workflows/ci.yml.template ]]; then
+  mv .github/workflows/ci.yml.template .github/workflows/ci.yml
+  echo "  activated .github/workflows/ci.yml (was ci.yml.template)"
+fi
+
 # .gremlins.yaml's {{MEASURED_*}} placeholders are deliberately NOT
 # substituted here -- see the header comment above.
 files_to_substitute=(
